@@ -1,0 +1,78 @@
+service: kresna-uploader
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+  environment:
+    BUCKET_NAME: ${self:custom.bucketName}
+    DYNAMODB_TABLE: ${self:custom.tableName}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource: "arn:aws:s3:::${self:custom.bucketName}/*"
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+          Resource: 
+            - !GetAtt FilesTable.Arn
+
+custom:
+  bucketName: kresna-uploads-${sls:stage}
+  tableName: kresna-files-${sls:stage}
+
+functions:
+  uploadHandler:
+    handler: handler.upload_handler
+    events:
+      - http:
+          path: /upload
+          method: post
+          cors: true
+  
+  processUpload:
+    handler: handler.process_upload
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt FilesTable.StreamArn
+
+resources:
+  Resources:
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - PUT
+                - POST
+                - GET
+              MaxAge: 3000
+
+    FilesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE

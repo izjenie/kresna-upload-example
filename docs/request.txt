@@ -1,0 +1,17 @@
+I want to create uploader for files and automatically upload them to AWS S3 bucket.
+
+I need to create serverless in python using aws serverless, using api gateway, dynamodb and lambda.
+
+I need a simple html file to test this. Apart from the file itself, I need to entry the text in the form. The text also will be save to dynamodb. And the S3 bucket filename will also write in the dynamodb.
+
+If somebody upload the file, there will be triggered a lmbda function with the input of the dynamodb id. The lambda function will print the id to the console.
+
+I need to create:
+
+1. HTML test file for upload and data entry
+2. Serverless function for dynamodb and lambda
+3. Api gateway for the serverless upload
+
+Let me also what to do in aws console, what information needed.
+And what to do with serverless framework
+
