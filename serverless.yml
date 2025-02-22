@@ -1,6 +1,6 @@
 service: kresna-uploader
 
-frameworkVersion: '3'
+frameworkVersion: '4'
 
 provider:
   name: aws
@@ -40,6 +40,13 @@ functions:
   
   processUpload:
     handler: handler.process_upload
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt FilesTable.StreamArn
+
+  autoTrigger:
+    handler: auto_trigger.auto_trigger_handler
     events:
       - stream:
           type: dynamodb

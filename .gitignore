@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Serverless
+.serverless/
+node_modules/
+
+# Environment
+.env
+.venv/
+venv/
+ENV/
